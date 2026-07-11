@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghost // Document Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14120f;
+    --surface:#1e1b17;
+    --surface-raised:#242019;
+    --border:#322c22;
+    --gold:#c9a24b;
+    --gold-dim:#8a7038;
+    --text:#ece5d8;
+    --text-dim:#9c9284;
+    --danger:#b5654a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(201,162,75,0.06), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'DM Sans', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:48px 20px 32px;
+  }
+
+  /* subtle paper grain */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    opacity:0.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+
+  .frame{
+    width:100%;
+    max-width:640px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+  }
+
+  header{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    border-bottom:1px solid var(--border);
+    padding-bottom:20px;
+  }
+  .eyebrow{
+    font-family:'DM Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:5px; height:5px;
+    background:var(--gold);
+    border-radius:50%;
+    display:inline-block;
+  }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:34px;
+    letter-spacing:0.01em;
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--gold);
+  }
+  .sub{
+    font-size:13.5px;
+    color:var(--text-dim);
+    line-height:1.5;
+  }
+
+  /* --- Upload folio --- */
+  .folio{
+    border:1px solid var(--border);
+    background:var(--surface);
+    border-radius:2px;
+    padding:36px 28px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    text-align:center;
+    transition:border-color 0.2s ease, background 0.2s ease;
+    position:relative;
+  }
+  .folio.drag{
+    border-color:var(--gold-dim);
+    background:var(--surface-raised);
+  }
+  .folio-mark{
+    width:34px; height:34px;
+    border:1px solid var(--gold-dim);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--gold);
+    font-family:'Cormorant Garamond', serif;
+    font-size:18px;
+    font-style:italic;
+  }
+  .folio-title{
+    font-family:'Cormorant Garamond', serif;
+    font-size:20px;
+    font-style:italic;
+    color:var(--text);
+  }
+  .folio-hint{
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .folio input[type=file]{ display:none; }
+  .btn{
+    font-family:'DM Sans', sans-serif;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:transparent;
+    border:1px solid var(--gold-dim);
+    color:var(--gold);
+    padding:10px 22px;
+    border-radius:1px;
+    cursor:pointer;
+    transition:all 0.15s ease;
+    margin-top:6px;
+  }
+  .btn:hover{ background:rgba(201,162,75,0.1); border-color:var(--gold); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .doc-chip{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    border:1px solid var(--border);
+    background:var(--surface);
+    padding:10px 16px;
+    border-radius:2px;
+    font-family:'DM Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .doc-chip .name{ color:var(--text); }
+  .doc-chip .reset{
+    color:var(--gold-dim);
+    cursor:pointer;
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+
+  /* --- Conversation --- */
+  .thread{
+    display:none;
+    flex-direction:column;
+    gap:20px;
+  }
+
+  .msg{ max-width:88%; }
+  .msg.user{
+    align-self:flex-end;
+    text-align:right;
+  }
+  .msg.user .bubble{
+    display:inline-block;
+    border:1px solid var(--border);
+    background:var(--surface);
+    padding:10px 16px;
+    border-radius:2px;
+    font-size:14.5px;
+    line-height:1.5;
+  }
+
+  .msg.assistant{
+    align-self:flex-start;
+    border-left:1px solid var(--gold-dim);
+    padding-left:16px;
+    position:relative;
+  }
+  .msg.assistant .note-label{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:13px;
+    color:var(--gold);
+    margin-bottom:4px;
+    display:block;
+  }
+  .msg.assistant .body-text{
+    font-size:14.5px;
+    line-height:1.65;
+    color:var(--text);
+  }
+  .msg.assistant.pending .body-text{
+    color:var(--text-dim);
+    font-style:italic;
+  }
+
+  .thread-row{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+
+  /* --- Composer --- */
+  .composer{
+    display:none;
+    gap:10px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    border-radius:2px;
+    padding:6px 6px 6px 16px;
+    align-items:center;
+  }
+  .composer input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'DM Sans', sans-serif;
+    font-size:14px;
+    padding:10px 0;
+  }
+  .composer input::placeholder{ color:var(--text-dim); }
+  .composer button{
+    background:var(--gold);
+    color:var(--bg);
+    border:none;
+    font-family:'DM Sans', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    padding:11px 18px;
+    border-radius:1px;
+    cursor:pointer;
+  }
+  .composer button:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .error{
+    display:none;
+    font-size:12.5px;
+    color:var(--danger);
+    border-left:1px solid var(--danger);
+    padding-left:12px;
+  }
+
+  footer{
+    margin-top:auto;
+    padding-top:24px;
+    font-family:'DM Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.05em;
+    color:var(--text-dim);
+    opacity:0.6;
+    text-transform:uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <header>
+      <span class="eyebrow">Ghost — Document Intelligence</span>
+      <h1>Ask the <em>document</em>, not the model.</h1>
+      <p class="sub">Upload a PDF. Every answer below is retrieved from its pages — nothing outside the text is admitted as evidence.</p>
+    </header>
+
+    <div class="folio" id="folio">
+      <div class="folio-mark">＋</div>
+      <div class="folio-title">Place a document in the folio</div>
+      <div class="folio-hint">PDF only · text-based, not scanned images</div>
+      <label class="btn" for="fileInput">Choose File</label>
+      <input type="file" id="fileInput" accept="application/pdf">
+    </div>
+
+    <div class="doc-chip" id="docChip">
+      <span>Indexed: <span class="name" id="docName"></span></span>
+      <span class="reset" id="resetBtn">upload another</span>
+    </div>
+
+    <div class="error" id="errorBox"></div>
+
+    <div class="thread thread-row" id="thread"></div>
+
+    <div class="composer" id="composer">
+      <input type="text" id="questionInput" placeholder="What does the document say about…" autocomplete="off">
+      <button id="askBtn">Ask</button>
+    </div>
+
+    <footer>Retrieval grounded · Gemini + Pinecone</footer>
+  </div>
+
+<script>
+  const folio = document.getElementById('folio');
+  const fileInput = document.getElementById('fileInput');
+  const docChip = document.getElementById('docChip');
+  const docName = document.getElementById('docName');
+  const resetBtn = document.getElementById('resetBtn');
+  const thread = document.getElementById('thread');
+  const composer = document.getElementById('composer');
+  const questionInput = document.getElementById('questionInput');
+  const askBtn = document.getElementById('askBtn');
+  const errorBox = document.getElementById('errorBox');
+
+  function showError(msg){
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+  }
+  function clearError(){
+    errorBox.style.display = 'none';
+  }
+
+  // --- Drag and drop ---
+  ['dragenter','dragover'].forEach(evt =>
+    folio.addEventListener(evt, e => { e.preventDefault(); folio.classList.add('drag'); })
+  );
+  ['dragleave','drop'].forEach(evt =>
+    folio.addEventListener(evt, e => { e.preventDefault(); folio.classList.remove('drag'); })
+  );
+  folio.addEventListener('drop', e => {
+    const file = e.dataTransfer.files[0];
+    if (file) uploadFile(file);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) uploadFile(fileInput.files[0]);
+  });
+
+  async function uploadFile(file){
+    clearError();
+    if (!file.name.toLowerCase().endsWith('.pdf')){
+      showError('Only PDF files are accepted.');
+      return;
+    }
+    folio.querySelector('.folio-title').textContent = 'Reading the document…';
+    folio.querySelector('.btn').setAttribute('disabled','true');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try{
+      const res = await fetch('/upload', { method:'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Upload failed.');
+
+      docName.textContent = data.filename;
+      folio.style.display = 'none';
+      docChip.style.display = 'flex';
+      composer.style.display = 'flex';
+      thread.style.display = 'flex';
+      questionInput.focus();
+    }catch(err){
+      showError(err.message);
+      folio.querySelector('.folio-title').textContent = 'Place a document in the folio';
+      folio.querySelector('.btn').removeAttribute('disabled');
+    }
+  }
+
+  resetBtn.addEventListener('click', () => {
+    location.reload();
+  });
+
+  function addMessage(role, text, pending=false){
+    const msg = document.createElement('div');
+    msg.className = `msg ${role}${pending ? ' pending' : ''}`;
+    if (role === 'user'){
+      msg.innerHTML = `<div class="bubble"></div>`;
+      msg.querySelector('.bubble').textContent = text;
+    } else {
+      msg.innerHTML = `<span class="note-label">note</span><div class="body-text"></div>`;
+      msg.querySelector('.body-text').textContent = text;
+    }
+    thread.appendChild(msg);
+    msg.scrollIntoView({ behavior:'smooth', block:'end' });
+    return msg;
+  }
+
+  async function ask(){
+    const question = questionInput.value.trim();
+    if (!question) return;
+    clearError();
+    addMessage('user', question);
+    questionInput.value = '';
+    askBtn.setAttribute('disabled','true');
+
+    const pendingMsg = addMessage('assistant', 'Reading through the document…', true);
+
+    try{
+      const res = await fetch('/chat', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ question })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Something went wrong.');
+
+      pendingMsg.classList.remove('pending');
+      pendingMsg.querySelector('.body-text').textContent = data.answer;
+    }catch(err){
+      pendingMsg.remove();
+      showError(err.message);
+    }finally{
+      askBtn.removeAttribute('disabled');
+      questionInput.focus();
+    }
+  }
+
+  askBtn.addEventListener('click', ask);
+  questionInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') ask();
+  });
+</script>
+</body>
+</html>

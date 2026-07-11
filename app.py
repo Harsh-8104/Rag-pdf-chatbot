@@ -16,6 +16,7 @@ import os
 import shutil
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 import config
@@ -141,6 +142,12 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
 
 @app.get("/")
-async def root() -> dict:
+async def serve_ui() -> FileResponse:
+    """Serve the chat UI (static/index.html)."""
+    return FileResponse("static/index.html")
+
+
+@app.get("/health")
+async def health() -> dict:
     """Simple health-check endpoint."""
     return {"status": "ok", "message": "RAG Chatbot API is running."}
