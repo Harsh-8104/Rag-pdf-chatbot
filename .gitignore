@@ -1,0 +1,33 @@
+# --- Secrets ---
+.env
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# --- Virtual environment ---
+venv/
+env/
+ENV/
+.venv/
+
+# --- Uploaded files (don't commit user PDFs) ---
+uploads/*
+!uploads/.gitkeep
+
+# --- IDE / editor ---
+.vscode/
+.idea/
+*.swp
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Packaging / build artifacts ---
+build/
+dist/
+*.egg-info/
