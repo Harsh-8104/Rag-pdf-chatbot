@@ -246,4 +246,4 @@ easy to read end-to-end.
 
 ---
 
-Built by [Harsh Chauhan](https://github.com/Harsh-8104) — a.k.a. Ghost.
+Built by [Harsh Chauhan](https://github.com/Harsh-8104)
