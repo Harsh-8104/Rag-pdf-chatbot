@@ -1,4 +1,4 @@
-# Ghost — RAG Document Chatbot
+# RAG Document Chatbot
 
 *Ask the document, not the model.*
 
