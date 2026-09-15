@@ -4,311 +4,347 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ghost // Document Intelligence</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
   :root{
-    --bg:#14120f;
-    --surface:#1e1b17;
-    --surface-raised:#242019;
-    --border:#322c22;
-    --gold:#c9a24b;
-    --gold-dim:#8a7038;
-    --text:#ece5d8;
-    --text-dim:#9c9284;
-    --danger:#b5654a;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
-  body{
-    background:
-      radial-gradient(ellipse at top, rgba(201,162,75,0.06), transparent 60%),
-      var(--bg);
-    color:var(--text);
-    font-family:'DM Sans', sans-serif;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:48px 20px 32px;
+    --bg-0: #07090c;
+    --bg-1: #0d1015;
+    --bg-2: #12161c;
+    --bg-3: #171c24;
+    --surface: #10141a;
+    --surface-hover: #161b22;
+    --border: rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.12);
+    --text-0: #eef1f6;
+    --text-1: #aab2c0;
+    --text-2: #6b7385;
+    --blue: #4c8dff;
+    --blue-dim: rgba(76,141,255,0.14);
+    --blue-glow: rgba(76,141,255,0.35);
+    --danger-bg: #241014;
+    --danger-border: #4a1b23;
+    --danger-text: #ef8a97;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  /* subtle paper grain */
-  body::before{
-    content:"";
-    position:fixed; inset:0;
-    pointer-events:none;
-    opacity:0.035;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    mix-blend-mode:overlay;
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(ellipse 900px 600px at 12% -10%, rgba(76,141,255,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 105% 10%, rgba(76,141,255,0.06), transparent 55%),
+      linear-gradient(180deg, #08090d 0%, #060708 100%);
+    font-family: var(--font);
+    color: var(--text-0);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px 28px;
   }
 
   .frame{
-    width:100%;
-    max-width:640px;
-    display:flex;
-    flex-direction:column;
-    gap:28px;
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
-  header{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    border-bottom:1px solid var(--border);
-    padding-bottom:20px;
+  /* ---------- HEADER ---------- */
+  .header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
   }
-  .eyebrow{
-    font-family:'DM Mono', monospace;
-    font-size:11px;
-    letter-spacing:0.18em;
-    text-transform:uppercase;
-    color:var(--gold-dim);
-    display:flex;
-    align-items:center;
-    gap:8px;
+  .header-id{ display:flex; align-items:center; gap: 12px; }
+  .logo{
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #1a2130, #0e1218);
+    border: 1px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset, 0 0 14px rgba(76,141,255,0.18);
+    flex-shrink: 0;
   }
-  .eyebrow::before{
-    content:"";
-    width:5px; height:5px;
-    background:var(--gold);
-    border-radius:50%;
-    display:inline-block;
-  }
-  h1{
-    font-family:'Cormorant Garamond', serif;
-    font-weight:500;
-    font-size:34px;
-    letter-spacing:0.01em;
-  }
-  h1 em{
-    font-style:italic;
-    color:var(--gold);
-  }
-  .sub{
-    font-size:13.5px;
-    color:var(--text-dim);
-    line-height:1.5;
-  }
+  .logo svg{ width: 18px; height: 18px; }
+  .header h1{ font-size: 16.5px; font-weight: 700; letter-spacing: -0.01em; }
+  .header .sub{ font-size: 12px; color: var(--text-2); margin-top: 2px; font-weight: 500; }
 
-  /* --- Upload folio --- */
+  .pill{
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-1);
+  }
+  .pill .dot{ width: 6px; height: 6px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 6px rgba(61,220,132,0.7); }
+  .pill.idle .dot{ background: var(--text-2); box-shadow: none; }
+
+  .btn-icon-header{
+    width: 34px; height: 34px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-1);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .btn-icon-header svg{ width: 15px; height: 15px; }
+  .btn-icon-header:hover{ background: var(--surface-hover); color: var(--text-0); }
+
+  /* ---------- FOLIO (upload) ---------- */
   .folio{
-    border:1px solid var(--border);
-    background:var(--surface);
-    border-radius:2px;
-    padding:36px 28px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:14px;
-    text-align:center;
-    transition:border-color 0.2s ease, background 0.2s ease;
-    position:relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 34px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
-  .folio.drag{
-    border-color:var(--gold-dim);
-    background:var(--surface-raised);
-  }
+  .folio.drag{ border-color: rgba(76,141,255,0.5); background: var(--surface-hover); box-shadow: 0 0 0 3px var(--blue-dim); }
+
   .folio-mark{
-    width:34px; height:34px;
-    border:1px solid var(--gold-dim);
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--gold);
-    font-family:'Cormorant Garamond', serif;
-    font-size:18px;
-    font-style:italic;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--blue-dim);
+    border: 1px solid rgba(76,141,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--blue);
   }
-  .folio-title{
-    font-family:'Cormorant Garamond', serif;
-    font-size:20px;
-    font-style:italic;
-    color:var(--text);
-  }
-  .folio-hint{
-    font-size:12.5px;
-    color:var(--text-dim);
-  }
-  .folio input[type=file]{ display:none; }
-  .btn{
-    font-family:'DM Sans', sans-serif;
-    font-size:12.5px;
-    letter-spacing:0.04em;
-    text-transform:uppercase;
-    background:transparent;
-    border:1px solid var(--gold-dim);
-    color:var(--gold);
-    padding:10px 22px;
-    border-radius:1px;
-    cursor:pointer;
-    transition:all 0.15s ease;
-    margin-top:6px;
-  }
-  .btn:hover{ background:rgba(201,162,75,0.1); border-color:var(--gold); }
-  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .folio-mark svg{ width: 19px; height: 19px; }
 
+  .folio-title{ font-size: 15px; font-weight: 700; color: var(--text-0); }
+  .folio-hint{ font-size: 12px; color: var(--text-2); font-weight: 500; }
+  .folio input[type=file]{ display: none; }
+
+  .run-btn{
+    height: 38px;
+    padding: 0 18px;
+    border-radius: var(--radius-md);
+    background: var(--blue);
+    color: #05070a;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: var(--font);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    box-shadow: 0 0 18px rgba(76,141,255,0.35);
+    transition: transform 0.1s ease, box-shadow 0.15s ease;
+    margin-top: 4px;
+  }
+  .run-btn:hover{ box-shadow: 0 0 24px rgba(76,141,255,0.5); }
+  .run-btn:active{ transform: scale(0.97); }
+  .run-btn:disabled{ opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .run-btn svg{ width: 14px; height: 14px; }
+
+  /* ---------- DOC CHIP ---------- */
   .doc-chip{
-    display:none;
-    align-items:center;
-    justify-content:space-between;
-    border:1px solid var(--border);
-    background:var(--surface);
-    padding:10px 16px;
-    border-radius:2px;
-    font-family:'DM Mono', monospace;
-    font-size:12px;
-    color:var(--text-dim);
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    padding: 10px 12px 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 12.5px;
   }
-  .doc-chip .name{ color:var(--text); }
+  .doc-chip .doc-info{ display: flex; align-items: center; gap: 9px; color: var(--text-1); font-weight: 600; min-width: 0; }
+  .doc-chip .doc-info svg{ width: 15px; height: 15px; color: var(--blue); flex-shrink: 0; }
+  .doc-chip .name{ color: var(--text-0); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .doc-chip .reset{
-    color:var(--gold-dim);
-    cursor:pointer;
-    text-decoration:underline;
-    text-underline-offset:2px;
+    display: flex; align-items: center; gap: 6px;
+    color: var(--text-2);
+    font-weight: 700;
+    font-size: 11.5px;
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-2);
+    padding: 6px 10px;
+    border-radius: 7px;
+    flex-shrink: 0;
   }
+  .doc-chip .reset:hover{ color: var(--blue); border-color: rgba(76,141,255,0.35); }
+  .doc-chip .reset svg{ width: 13px; height: 13px; }
 
-  /* --- Conversation --- */
+  /* ---------- THREAD ---------- */
   .thread{
-    display:none;
-    flex-direction:column;
-    gap:20px;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
   }
 
-  .msg{ max-width:88%; }
-  .msg.user{
-    align-self:flex-end;
-    text-align:right;
-  }
+  .msg{ max-width: 88%; }
+  .msg.user{ align-self: flex-end; }
   .msg.user .bubble{
-    display:inline-block;
-    border:1px solid var(--border);
-    background:var(--surface);
-    padding:10px 16px;
-    border-radius:2px;
-    font-size:14.5px;
-    line-height:1.5;
+    display: inline-block;
+    background: var(--blue-dim);
+    border: 1px solid rgba(76,141,255,0.25);
+    color: var(--text-0);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 500;
   }
 
-  .msg.assistant{
-    align-self:flex-start;
-    border-left:1px solid var(--gold-dim);
-    padding-left:16px;
-    position:relative;
+  .msg.assistant{ align-self: flex-start; display: flex; gap: 10px; }
+  .msg.assistant .avatar{
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .msg.assistant .avatar svg{ width: 13px; height: 13px; color: var(--blue); }
+  .msg.assistant .card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
   }
   .msg.assistant .note-label{
-    font-family:'Cormorant Garamond', serif;
-    font-style:italic;
-    font-size:13px;
-    color:var(--gold);
-    margin-bottom:4px;
-    display:block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--blue);
+    margin-bottom: 3px;
+    display: block;
   }
-  .msg.assistant .body-text{
-    font-size:14.5px;
-    line-height:1.65;
-    color:var(--text);
-  }
-  .msg.assistant.pending .body-text{
-    color:var(--text-dim);
-    font-style:italic;
-  }
+  .msg.assistant .body-text{ font-size: 14px; line-height: 1.6; color: var(--text-0); }
+  .msg.assistant.pending .body-text{ color: var(--text-2); font-weight: 500; }
 
-  .thread-row{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-  }
-
-  /* --- Composer --- */
+  /* ---------- COMPOSER ---------- */
   .composer{
-    display:none;
-    gap:10px;
-    border:1px solid var(--border);
-    background:var(--surface);
-    border-radius:2px;
-    padding:6px 6px 6px 16px;
-    align-items:center;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 8px 8px 8px 14px;
   }
+  .composer:focus-within{ border-color: rgba(76,141,255,0.5); box-shadow: 0 0 0 3px var(--blue-dim); }
+  .composer svg.q-icon{ width: 15px; height: 15px; color: var(--text-2); flex-shrink: 0; }
   .composer input{
-    flex:1;
-    background:transparent;
-    border:none;
-    outline:none;
-    color:var(--text);
-    font-family:'DM Sans', sans-serif;
-    font-size:14px;
-    padding:10px 0;
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-0);
+    font-family: var(--font);
+    font-size: 14px;
+    padding: 10px 0;
   }
-  .composer input::placeholder{ color:var(--text-dim); }
-  .composer button{
-    background:var(--gold);
-    color:var(--bg);
-    border:none;
-    font-family:'DM Sans', sans-serif;
-    font-weight:600;
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:0.04em;
-    padding:11px 18px;
-    border-radius:1px;
-    cursor:pointer;
-  }
-  .composer button:disabled{ opacity:0.4; cursor:not-allowed; }
+  .composer input::placeholder{ color: var(--text-2); }
+  .composer .run-btn{ margin-top: 0; flex-shrink: 0; }
 
+  /* ---------- ERROR ---------- */
   .error{
-    display:none;
-    font-size:12.5px;
-    color:var(--danger);
-    border-left:1px solid var(--danger);
-    padding-left:12px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--danger-text);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
   }
+  .error svg{ width: 14px; height: 14px; flex-shrink: 0; }
 
   footer{
-    margin-top:auto;
-    padding-top:24px;
-    font-family:'DM Mono', monospace;
-    font-size:10.5px;
-    letter-spacing:0.05em;
-    color:var(--text-dim);
-    opacity:0.6;
-    text-transform:uppercase;
+    margin-top: auto;
+    padding-top: 18px;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+    text-transform: uppercase;
+    font-weight: 600;
+    text-align: center;
   }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ transition:none !important; }
-  }
+  ::-webkit-scrollbar{ width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track{ background: transparent; }
+  ::-webkit-scrollbar-thumb{ background: var(--bg-3); border-radius: 8px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition: none !important; } }
 </style>
 </head>
 <body>
   <div class="frame">
-    <header>
-      <span class="eyebrow">Ghost — Document Intelligence</span>
-      <h1>Ask the <em>document</em>, not the model.</h1>
-      <p class="sub">Upload a PDF. Every answer below is retrieved from its pages — nothing outside the text is admitted as evidence.</p>
-    </header>
+
+    <div class="header">
+      <div class="header-id">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4c8dff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l8 3.5v6c0 5-3.4 8.6-8 10.5-4.6-1.9-8-5.5-8-10.5v-6L12 2z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Ghost — Document Intelligence</h1>
+          <div class="sub">Answers retrieved from the page, nothing outside it admitted</div>
+        </div>
+      </div>
+      <div class="pill idle" id="statusPill"><span class="dot"></span><span id="statusText">No document indexed</span></div>
+    </div>
 
     <div class="folio" id="folio">
-      <div class="folio-mark">＋</div>
+      <div class="folio-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      </div>
       <div class="folio-title">Place a document in the folio</div>
       <div class="folio-hint">PDF only · text-based, not scanned images</div>
-      <label class="btn" for="fileInput">Choose File</label>
+      <label class="run-btn" for="fileInput">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        Choose File
+      </label>
       <input type="file" id="fileInput" accept="application/pdf">
     </div>
 
     <div class="doc-chip" id="docChip">
-      <span>Indexed: <span class="name" id="docName"></span></span>
-      <span class="reset" id="resetBtn">upload another</span>
+      <div class="doc-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span class="name" id="docName"></span>
+      </div>
+      <div class="reset" id="resetBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        Upload another
+      </div>
     </div>
 
-    <div class="error" id="errorBox"></div>
+    <div class="error" id="errorBox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>
+      <span id="errorText"></span>
+    </div>
 
-    <div class="thread thread-row" id="thread"></div>
+    <div class="thread" id="thread"></div>
 
     <div class="composer" id="composer">
+      <svg class="q-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="text" id="questionInput" placeholder="What does the document say about…" autocomplete="off">
-      <button id="askBtn">Ask</button>
+      <button class="run-btn" id="askBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        Ask
+      </button>
     </div>
 
     <footer>Retrieval grounded · Gemini + Pinecone</footer>
@@ -325,10 +361,13 @@
   const questionInput = document.getElementById('questionInput');
   const askBtn = document.getElementById('askBtn');
   const errorBox = document.getElementById('errorBox');
+  const errorText = document.getElementById('errorText');
+  const statusPill = document.getElementById('statusPill');
+  const statusText = document.getElementById('statusText');
 
   function showError(msg){
-    errorBox.textContent = msg;
-    errorBox.style.display = 'block';
+    errorText.textContent = msg;
+    errorBox.style.display = 'flex';
   }
   function clearError(){
     errorBox.style.display = 'none';
@@ -356,7 +395,7 @@
       return;
     }
     folio.querySelector('.folio-title').textContent = 'Reading the document…';
-    folio.querySelector('.btn').setAttribute('disabled','true');
+    folio.querySelector('.run-btn').setAttribute('disabled','true');
 
     const formData = new FormData();
     formData.append('file', file);
@@ -371,11 +410,13 @@
       docChip.style.display = 'flex';
       composer.style.display = 'flex';
       thread.style.display = 'flex';
+      statusPill.classList.remove('idle');
+      statusText.textContent = 'Document indexed';
       questionInput.focus();
     }catch(err){
       showError(err.message);
       folio.querySelector('.folio-title').textContent = 'Place a document in the folio';
-      folio.querySelector('.btn').removeAttribute('disabled');
+      folio.querySelector('.run-btn').removeAttribute('disabled');
     }
   }
 
@@ -390,7 +431,11 @@
       msg.innerHTML = `<div class="bubble"></div>`;
       msg.querySelector('.bubble').textContent = text;
     } else {
-      msg.innerHTML = `<span class="note-label">note</span><div class="body-text"></div>`;
+      msg.innerHTML = `
+        <div class="avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3.5v6c0 5-3.4 8.6-8 10.5-4.6-1.9-8-5.5-8-10.5v-6L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div class="card"><span class="note-label">GROUNDED ANSWER</span><div class="body-text"></div></div>`;
       msg.querySelector('.body-text').textContent = text;
     }
     thread.appendChild(msg);
